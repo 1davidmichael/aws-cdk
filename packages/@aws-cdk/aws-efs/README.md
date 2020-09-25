@@ -22,6 +22,7 @@ const myVpc = new ec2.Vpc(this, 'VPC');
 const fileSystem = new efs.FileSystem(this, 'MyEfsFileSystem', {
   vpc: myVpc,
   encrypted: true,
+  backupPolicy: efs.BackupPolicy.ENABLED,
   lifecyclePolicy: efs.LifecyclePolicy.AFTER_14_DAYS,
   performanceMode: efs.PerformanceMode.GENERAL_PURPOSE,
   throughputMode: efs.ThroughputMode.BURSTING
@@ -66,7 +67,7 @@ fileSystem.connections.allowDefaultPortFrom(instance);
 ```
 ### Mounting the file system using User Data
 
-In order to automatically mount this file system during instance launch, 
+In order to automatically mount this file system during instance launch,
 following code can be used as reference:
 ```ts
 const vpc = new ec2.Vpc(this, 'VPC');

@@ -2,7 +2,8 @@ import { expect as expectCDK, haveResource, ResourcePart } from '@aws-cdk/assert
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as kms from '@aws-cdk/aws-kms';
 import { RemovalPolicy, Size, Stack, Tags } from '@aws-cdk/core';
-import { FileSystem, LifecyclePolicy, PerformanceMode, ThroughputMode } from '../lib';
+import { timeStamp } from 'console';
+import { BackupPolicy, FileSystem, LifecyclePolicy, PerformanceMode, ThroughputMode } from '../lib';
 
 let stack = new Stack();
 let vpc = new ec2.Vpc(stack, 'VPC');
@@ -85,6 +86,20 @@ test('file system is created correctly with a life cycle property', () => {
   expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
     LifecyclePolicies: [{
       TransitionToIA: 'AFTER_7_DAYS',
+    }],
+  }));
+});
+
+test('file system is created correctly with a backup policy property', () => {
+  // WHEN
+  new FileSystem(stack, 'EfsFileSystem', {
+    vpc,
+    backupPolicy: BackupPolicy.ENABLED,
+  });
+  // THEN
+  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+    BackupPolicy: [{
+      Status: 'ENABLED',
     }],
   }));
 });

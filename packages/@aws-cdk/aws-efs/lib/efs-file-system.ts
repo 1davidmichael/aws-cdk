@@ -5,6 +5,24 @@ import { AccessPoint, AccessPointOptions } from './access-point';
 import { CfnFileSystem, CfnMountTarget } from './efs.generated';
 
 /**
+ * EFS Backup Policy.
+ *
+ * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-efs-filesystem.html#cfn-efs-filesystem-backuppolicy
+ */
+export enum BackupPolicy {
+
+  /**
+   * Turns automatic backups on for the file system.
+   */
+  ENABLED = 'ENABLED',
+
+  /**
+   * Turns automatic backups off for the file system.
+   */
+  DISABLED = 'DISABLED'
+}
+
+/**
  * EFS Lifecycle Policy, if a file is not accessed for given days, it will move to EFS Infrequent Access.
  *
  * @see http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-efs-filesystem.html#cfn-elasticfilesystem-filesystem-lifecyclepolicies
@@ -135,6 +153,13 @@ export interface FileSystemProps {
   readonly kmsKey?: kms.IKey;
 
   /**
+   * A policy used by EFS to turn automatic backups on or off for the file system.
+   *
+   * @default - none
+   */
+  readonly backupPolicy?: BackupPolicy;
+
+  /**
    * A policy used by EFS lifecycle management to transition files to the Infrequent Access (IA) storage class.
    *
    * @default - none
@@ -245,6 +270,7 @@ export class FileSystem extends Resource implements IFileSystem {
     }
 
     const filesystem = new CfnFileSystem(this, 'Resource', {
+      backupPolicy: props.backupPolicy,
       encrypted: props.encrypted,
       kmsKeyId: (props.kmsKey ? props.kmsKey.keyId : undefined),
       lifecyclePolicies: (props.lifecyclePolicy ? [{ transitionToIa: props.lifecyclePolicy }] : undefined),
